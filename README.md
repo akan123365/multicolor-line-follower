@@ -61,9 +61,6 @@ This project demonstrates a smart autonomous robot that can follow a line of a s
 
 ---
 
-##  System Architecture
----
-
 ## Working Principle
 
 1. The TCS3200 color sensor reads the color value beneath it.
@@ -74,6 +71,129 @@ This project demonstrates a smart autonomous robot that can follow a line of a s
 ---
 
 ## Circuit Diagram
----
+<img width="2088" height="1244" alt="1000149705" src="https://github.com/user-attachments/assets/55f81cfb-733b-4d61-b800-9996e298e30b" />
 
-## 💻 Code
+
+## Code
+#define IN1 9
+#define IN2 10
+#define IN3 11
+#define IN4 12
+#define S0 4
+#define S1 5
+#define S2 6
+#define S3 7
+#define sensorOut 8
+
+int red = 0, green = 0, blue = 0;
+
+void setup() {
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+
+  pinMode(S0, OUTPUT);
+  pinMode(S1, OUTPUT);
+  pinMode(S2, OUTPUT);
+  pinMode(S3, OUTPUT);
+  pinMode(sensorOut, INPUT);
+
+  digitalWrite(S0, HIGH);
+  digitalWrite(S1, LOW);
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  readColor();
+
+  Serial.print("R: ");
+  Serial.print(red);
+  Serial.print(" G: ");
+  Serial.print(green);
+  Serial.print(" B: ");
+  Serial.println(blue);
+
+  if (isRed()) {
+    turnLeft();
+  } else if (isBlue()) {
+    turnRight();
+  } else if (isGreen()) {
+    stopMotors();
+  } else if (isYellow()) {
+    uTurn();
+  } else {
+    moveForward();
+  }
+
+  delay(300);
+}
+
+void readColor() {
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, LOW);
+  red = pulseIn(sensorOut, LOW);
+
+  digitalWrite(S2, HIGH);
+  digitalWrite(S3, HIGH);
+  green = pulseIn(sensorOut, LOW);
+
+  digitalWrite(S2, LOW);
+  digitalWrite(S3, HIGH);
+  blue = pulseIn(sensorOut, LOW);
+}
+
+bool isRed() {
+  return (red < 25 && green > 40 && blue > 40);
+}
+
+bool isGreen() {
+  return (green < 30 && red > 35 && blue > 35);
+}
+
+bool isBlue() {
+  return (blue < 25 && red > 40 && green > 40);
+}
+
+bool isYellow() {
+  return (red < 35 && green < 35 && blue > 45);
+}
+
+void moveForward() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void stopMotors() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void turnLeft() {
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void turnRight() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void uTurn() {
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  delay(700);
+  stopMotors();
+}
+
